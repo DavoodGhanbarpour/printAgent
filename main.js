@@ -146,6 +146,6 @@ function print(url){
 function buildHiddenView(){
   view = new BrowserView()
   win.setBrowserView(view)
-  view.setBounds({ x: 0, y: 550, width: 550, height: 550 })
+  view.setBounds({ x: 0, y: 0, width: 0, height: 0 })
 }
 
