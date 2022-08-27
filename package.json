@@ -29,7 +29,8 @@
   },
   "dependencies": {
     "axios": "^0.27.2",
-    "electron-squirrel-startup": "^1.0.0"
+    "electron-squirrel-startup": "^1.0.0",
+    "sleep-promise": "^9.1.0"
   },
   "config": {
     "forge": {
