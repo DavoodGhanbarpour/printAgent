@@ -1,16 +1,26 @@
 const { app, BrowserWindow,ipcMain,BrowserView, screen } = require('electron');
 const path        = require('path')
-const fs          = require("fs");
+const Store       = require('electron-store');
+// const fs          = require("fs");
+// const urlExist    = require("url-exist");
+const AutoLaunch  = require('auto-launch');
 const axios       = require('axios');
-const sleep     = require('sleep-promise');
-const CONFIG_PATH = './config/agentConfig.json';
+const sleep       = require('sleep-promise');
+const store       = new Store();
 var win,view;        
+
 app.disableHardwareAcceleration();
 
 app.whenReady().then(() => {
   createAgentWindow();
   buildHiddenView();
+
   ipcMain.on('setConfig', saveConfigs);
+  ipcMain.on('getConfig',()=>{
+    win.webContents.send('replyGetConfig', getConfig());
+  });
+  
+
   setInterval(() => {
     getNextPrintJob();
   },2000);
@@ -33,6 +43,8 @@ app.whenReady().then(() => {
   //   }
   //   return false;
   // });
+
+  setStartup();
   
 });
 
@@ -43,12 +55,9 @@ app.on('window-all-closed', function () {
 
 
 
-
-
 const createAgentWindow = () => {
   buildAgentMainWindow();
   loadAgentHTML();
-  loadConfigToAgent();
 };
 
 function buildAgentMainWindow(){
@@ -65,10 +74,22 @@ function buildAgentMainWindow(){
     },
   });
   win.setResizable(false);
+  // win.webContents.openDevTools();
 }
 
-function loadConfigToAgent(){
-  win.webContents.send('getConfig', getConfig());
+function setStartup() {
+
+  let configs = getConfig();
+  if( configs.startup == 'on' )
+  {
+    let autoLaunch = new AutoLaunch({
+      name: 'Printer Agent',
+      path: app.getPath('exe'),
+    });
+    autoLaunch.isEnabled().then((isEnabled) => {
+      if (!isEnabled) autoLaunch.enable();
+    });
+  }
 }
 
 function loadAgentHTML(){
@@ -76,28 +97,28 @@ function loadAgentHTML(){
 }
 
 function saveConfigs(event,input){
-  fs.writeFile( CONFIG_PATH , JSON.stringify(input), function (err,data) {
-    if (err) {
-      return console.log(err);
-    }
-  });
+  store.set( 'config', JSON.stringify(input) ?? "")
 }
 
 function getConfig(){
-  let configData = JSON.parse( fs.readFileSync( CONFIG_PATH ) );
-  if( configData )
-    return configData;
-  else
-    return "";
+  if( store.has('config')  )
+  {
+    let configData = JSON.parse(  store.get( 'config' ) );
+    if( configData )
+      return configData;
+  }
+  return "";
 }
 
 
 function getNextPrintJob(){
   let configs = getConfig();
-  if( configs.ip && configs.port && configs.printerName )
+  let url     = `${configs.ip}:${configs.port}`;
+  if( configs.ip && configs.port && configs.printerName && configs.start == 'on' )
   {
+    // if( checkURL(url) ) return;
     configs.printerName.split(',').forEach(eachPrinterName => {
-      getPrinterJob( `${configs.ip}:${configs.port}`, eachPrinterName )
+      getPrinterJob( url , eachPrinterName )
     });
     (async () => {
       await sleep(1000);
@@ -105,6 +126,14 @@ function getNextPrintJob(){
   }
 }
 
+function checkURL( url )
+{
+  (async () => {
+    const exists = await urlExist(url);
+    // Handle result
+    console.log(exists)
+  })();
+}
 
 function getPrinterJob( url, printerName )
 {

@@ -9,11 +9,18 @@ document.getElementById('submitButton').addEventListener('click', () => {
     window.electronAPI.setConfig(input)
 });
 
-window.electronAPI.getConfig((_event, configs) => {
-    console.log(configs)
-    document.getElementById('ip').value = configs.ip;
-    document.getElementById('port').value = configs.port;
-    document.getElementById('printerName').value = configs.printerName;
+document.getElementById('refreshConfigs').addEventListener('click', () => {
+    window.electronAPI.getConfig()
+});
+
+document.addEventListener("DOMContentLoaded", function() { 
+    window.electronAPI.getConfig()
+});
+
+window.electronAPI.replyGetConfig((_event, configs) => {
+    document.getElementById('ip').value = configs.ip ?? '';
+    document.getElementById('port').value = configs.port ?? '';
+    document.getElementById('printerName').value = configs.printerName ?? '';
     
     if( configs.startup == 'on' )
         document.getElementById('startup').checked  = true;  
