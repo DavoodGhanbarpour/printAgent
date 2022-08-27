@@ -17,7 +17,7 @@ const createWindow = () => {
   });
   win.loadFile('./src/index.html');
   win.webContents.send('getConfig', getConfig())
-  win.webContents.openDevTools()
+  // win.webContents.openDevTools()
 };
 
 app.whenReady().then(() => {
@@ -64,8 +64,8 @@ function getNextPrintJob(){
     .then(function (response) {
       if( response.data != '-' )
       {
-        preview(response.data+'?&hide=true')
-        print(response.data+'?&hide=true')
+        preview(response.data+'&hide=true')
+        print(response.data+'&hide=true')
       }
     })
     .catch(function (error) {
@@ -84,11 +84,12 @@ function print(url){
   let configs = getConfig();
   if( configs.printerName )
   {
+    console.log(url)
     view.webContents.loadURL(url)
     view.webContents.print({
       silent: true, 
       printBackground: true, 
-      deviceName: printerName
+      deviceName: configs.printerName
     })
 
   }
