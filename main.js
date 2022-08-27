@@ -1,26 +1,92 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow,ipcMain,BrowserView } = require('electron');
+const path        = require('path')
+const fs          = require("fs");
+const axios       = require('axios');
+const CONFIG_PATH = './config/agentConfig.json';
+var win,view;        
 
 const createWindow = () => {
-  const win = new BrowserWindow({
-    width: 200,
-    height: 200,
+  
+  win         = new BrowserWindow({
+    autoHideMenuBar: true,
+    width: 250,
+    height: 300,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+    },
   });
-
-  win.loadURL('http://tower/system/print/fishRestaurant/10036?printer=22&orderID=10036&hide=true');
+  win.loadFile('./src/index.html');
+  win.webContents.send('getConfig', getConfig())
 };
 
 app.whenReady().then(() => {
   createWindow();
+  
+  ipcMain.on('setConfig', saveConfigs);
+  buildHiddenView();
 
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
+  setInterval(() => {
+    getNextPrintJob();
+  },2000);
+
+  
+  app.on('activate', function () { if (BrowserWindow.getAllWindows().length === 0) createWindow() });
+})
+
+
+
+app.on('window-all-closed', function () {
+  if (process.platform !== 'darwin') app.quit()
+})
+
+function saveConfigs(event,input){
+  fs.writeFile( CONFIG_PATH , JSON.stringify(input), function (err,data) {
+    if (err) {
+      return console.log(err);
     }
   });
-});
+}
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
+function getConfig(){
+  let configData = JSON.parse( fs.readFileSync( CONFIG_PATH ) );
+  if( configData )
+    return configData;
+  else
+    return "";
+}
+
+function getNextPrintJob(){
+  let configs = getConfig();
+  if( configs.ip && configs.port && configs.printerName )
+  {
+    axios.get(`${configs.ip}:${configs.port}/system/prints/${configs.printerName}`)
+    .then(function (response) {
+      if( response.data != '-' )
+      {
+        preview(response.data+'?&hide=true')
+        print(response.data+'?&hide=true')
+      }
+    })
+    .catch(function (error) {
+      console.log(error);
+    })
+    .then(function () {
+    });  
   }
-});
+}
+
+function preview(url){
+  win.webContents.send('updatePreviewFrame', url)
+}
+
+function print(url){
+  view.webContents.loadURL(url)
+  view.webContents.print({silent: false, printBackground: true, deviceName: ''})
+}
+
+function buildHiddenView(){
+  view = new BrowserView()
+  win.setBrowserView(view)
+  view.setBounds({ x: 0, y: 0, width: 0, height: 0 })
+}
+
