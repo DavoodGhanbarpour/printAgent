@@ -9,15 +9,15 @@ const createWindow = () => {
   
   win         = new BrowserWindow({
     autoHideMenuBar: true,
-    width: 500,
-    height: 400,
+    width: 400,
+    height: 600,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
   });
   win.loadFile('./src/index.html');
   win.webContents.send('getConfig', getConfig())
-  // win.webContents.openDevTools()
+  win.webContents.openDevTools()
 };
 
 app.whenReady().then(() => {

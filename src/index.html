@@ -4,19 +4,60 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Print Agent</title>
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+    
 </head>
-<body>
-    <input type="text" id="ip">
-    <input type="text" id="port">
-    <input type="text" id="printerName">
-    <input type="checkbox" id="startup" value="on">
-    <input type="checkbox" id="start" value="on">
-    <button id="submitButton">Submit</button>
+<body class="vh-100 overflow-hidden">
+    <div class="container-fluid mt-3">
+        <div class="row">
+            <div class="col-12">
+                <div class="row">
+                    <div class="col-6 mb-1">
+                        <div class="row">
+                            <label for="ip">IP :</label>
+                            <div class="col-12">
+                                <input type="text" id="ip" class="form-control form-control-sm">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-1">
+                        <div class="row">
+                            <label for="ip">Port :</label>
+                            <div class="col-12">
+                                <input type="text" id="port" class="form-control form-control-sm">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 mb-1">
+                        <div class="row">
+                            <label for="ip">Printer Name :</label>
+                            <div class="col-12">
+                                <input type="text" id="printerName" class="form-control form-control-sm">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-1">
+                        <input type="checkbox" id="startup" value="on">
+                        <label for="startup">startup</label>
+                    </div>
+                    <div class="col-6 mb-1">
+                        <input type="checkbox" id="start" value="on">
+                        <label for="start">start</label>
+                    </div>
+                </div>
+            </div>
 
+            <div class="col-12">
+                <button id="submitButton" class="btn btn-sm btn-success w-100 my-2">Submit</button>
+            </div>
 
-    <iframe src="" id="printPreview">
-    </iframe>
+            <div class="col-12">
+                <iframe src="" id="printPreview"></iframe>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
 <script src="../renderer.js"></script>
