@@ -9,14 +9,15 @@ const createWindow = () => {
   
   win         = new BrowserWindow({
     autoHideMenuBar: true,
-    width: 250,
-    height: 300,
+    width: 500,
+    height: 400,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
   });
   win.loadFile('./src/index.html');
   win.webContents.send('getConfig', getConfig())
+  // win.webContents.openDevTools()
 };
 
 app.whenReady().then(() => {
@@ -80,8 +81,17 @@ function preview(url){
 }
 
 function print(url){
-  view.webContents.loadURL(url)
-  view.webContents.print({silent: false, printBackground: true, deviceName: ''})
+  let configs = getConfig();
+  if( configs.printerName )
+  {
+    view.webContents.loadURL(url)
+    view.webContents.print({
+      silent: true, 
+      printBackground: true, 
+      deviceName: printerName
+    })
+
+  }
 }
 
 function buildHiddenView(){
