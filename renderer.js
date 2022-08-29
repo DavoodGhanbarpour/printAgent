@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 window.electronAPI.replyGetConfig((_event, configs) => {
-    document.getElementById('ip').value = configs.ip ?? '';
+    document.getElementById('ip').value = configs.ip ?? 'http://';
     document.getElementById('port').value = configs.port ?? '';
     document.getElementById('printerName').value = configs.printerName ?? '';
     
