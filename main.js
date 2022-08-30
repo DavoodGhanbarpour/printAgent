@@ -1,4 +1,4 @@
-const { app, BrowserWindow,ipcMain,BrowserView, screen } = require('electron');
+const { app, BrowserWindow,ipcMain,BrowserView, screen, Menu } = require('electron');
 const path        = require('path')
 const Store       = require('electron-store');
 // const fs          = require("fs");
@@ -11,6 +11,7 @@ const { get }     = require('http');
 const store       = new Store();
 var win,view;        
 var failedJobs    = [];
+const { dialog } = require('electron');
 
 app.disableHardwareAcceleration();
 
@@ -40,13 +41,28 @@ app.whenReady().then(() => {
     win.minimize();
   });
   
-  win.on('close', function (event) {
-    if(!app.isQuiting){
-        event.preventDefault();
-        win.minimize();
-    }
-    return false;
+  // win.on('close', function (event) {
+  //   if(!app.isQuiting){
+  //       event.preventDefault();
+  //       win.minimize();
+  //   }
+  //   return false;
+  // });
+
+
+  win.on('close', function (e) {
+      let response = dialog.showMessageBoxSync(this, {
+          type: 'question',
+          buttons: ['Yes', 'No'],
+          title: 'Confirm',
+          message: 'Are you sure you want to quit?'
+      });
+
+      if(response == 1) e.preventDefault();
   });
+
+  // win.on('ctrlKey', function(event) {
+  // })
 
   setStartup();
   
@@ -66,8 +82,8 @@ const createAgentWindow = () => {
 
 function buildAgentMainWindow(){
   let display = screen.getPrimaryDisplay();
-  win         = new BrowserWindow({
-    autoHideMenuBar: true,
+    win = new BrowserWindow({
+    autoHideMenuBar: false,
     width: 350,
     height: 600,
     x: display.bounds.width - 350,
@@ -77,7 +93,7 @@ function buildAgentMainWindow(){
       preload: path.join(__dirname, 'preload.js'),
     },
   });
-  win.setResizable(false);
+  win.setResizable(true);
   // win.webContents.openDevTools();
 }
 
@@ -131,6 +147,7 @@ function getNextPrintJob(){
 
 function printFailedJobs(){
   if( !failedJobs ) return;
+  console.log(failedJobs);
   failedJobs.forEach(element => {
     getAndPrintNextJob(element.url, element.printerName, true);
     (async () => {
@@ -173,7 +190,7 @@ function print(url, printerName, isFailedJob = false){
       
       if( !isFailedJob )
       {
-        console.log(url,printerName,error.message);
+        // console.log(url,printerName,error.message);
         failedJobs.push({
           url : url,
           printerName: printerName
