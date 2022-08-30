@@ -27,8 +27,8 @@ app.whenReady().then(() => {
 
   setInterval(() => {
     getNextPrintJob();
-    printFailedJobs();
-  },2500);
+    // printFailedJobs();
+  },5000);
 
   
   app.on('activate', function () { 
@@ -83,7 +83,7 @@ const createAgentWindow = () => {
 function buildAgentMainWindow(){
   let display = screen.getPrimaryDisplay();
     win = new BrowserWindow({
-    autoHideMenuBar: false,
+    autoHideMenuBar: true,
     width: 350,
     height: 600,
     x: display.bounds.width - 350,
@@ -93,7 +93,7 @@ function buildAgentMainWindow(){
       preload: path.join(__dirname, 'preload.js'),
     },
   });
-  win.setResizable(true);
+  win.setResizable(false);
   // win.webContents.openDevTools();
 }
 
@@ -137,22 +137,31 @@ function getNextPrintJob(){
   if( configs.ip && configs.port && configs.printerName && configs.start == 'on' )
   {
     configs.printerName.split(',').forEach(eachPrinterName => {
-      getAndPrintNextJob( url, eachPrinterName);
+      
+      setTimeout(() => {
+        getAndPrintNextJob( url, eachPrinterName.toString().trim());
+      }, 5000);
     });
-    (async () => {
-      await sleep(2500);
-    })();
+    // (async () => {
+    //   await sleep(10000);
+    // })();
+   
   }
 }
 
 function printFailedJobs(){
   if( !failedJobs ) return;
+  console.log('fail : ');
   console.log(failedJobs);
+  console.log('');
   failedJobs.forEach(element => {
-    getAndPrintNextJob(element.url, element.printerName, true);
-    (async () => {
-      await sleep(2500);
-    })();
+    setTimeout(() => {
+      getAndPrintNextJob(element.url, element.printerName, true)
+    }, 5000);
+    // getAndPrintNextJob(element.url, element.printerName, true);
+    // (async () => {
+    //   await sleep(10000);
+    // })();
   });
   failedJobs = [];
 }
@@ -161,6 +170,11 @@ function printFailedJobs(){
 
 function getAndPrintNextJob( url, printerName, isFailedJob = false )
 {
+  if( printerName == undefined || printerName.length == 0 ) return;
+  if( url == undefined || url.length == 0 ) return;
+  console.log('PrinterName : ');
+  console.log(printerName);
+  console.log('');
   axios.get(`${url}/system/prints/${printerName}`)
   .then(function (response) {
     if( response.data != '-' )
@@ -180,23 +194,19 @@ function preview(url){
 function print(url, printerName, isFailedJob = false){
   if( printerName )
   {
-    view.webContents.loadURL(url).then(function(){
-      view.webContents.print({
-        silent: true, 
-        printBackground: true, 
-        deviceName: printerName
-      });
-    }).catch((error) => {
-      
-      if( !isFailedJob )
-      {
-        // console.log(url,printerName,error.message);
-        failedJobs.push({
-          url : url,
-          printerName: printerName
-        });
+    let win2 = new BrowserWindow({ width: 302, height: 793, show: false });
+    
+    win2.loadURL(url);
+    win2.webContents.on('did-finish-load', function() {
+      const options = {
+          silent: true,
+          deviceName: printerName,
       }
+      win2.webContents.print(options, () => {
+        win2 = null;
+      });
     });
+      
   }
 }
 
