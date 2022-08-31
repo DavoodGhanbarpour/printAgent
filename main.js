@@ -17,7 +17,7 @@ app.disableHardwareAcceleration();
 
 app.whenReady().then(() => {
   createAgentWindow();
-  buildHiddenView();
+  // buildHiddenView();
 
   ipcMain.on('setConfig', saveConfigs);
   ipcMain.on('getConfig',()=>{
@@ -137,32 +137,23 @@ function getNextPrintJob(){
   if( configs.ip && configs.port && configs.printerName && configs.start == 'on' )
   {
     configs.printerName.split(',').forEach(eachPrinterName => {
-      
       setTimeout(() => {
         getAndPrintNextJob( url, eachPrinterName.toString().trim());
       }, 5000);
     });
-    // (async () => {
-    //   await sleep(10000);
-    // })();
    
   }
 }
 
 function printFailedJobs(){
   if( !failedJobs ) return;
-  console.log('fail : ');
-  console.log(failedJobs);
-  console.log('');
+
   failedJobs.forEach(element => {
     setTimeout(() => {
       getAndPrintNextJob(element.url, element.printerName, true)
     }, 5000);
-    // getAndPrintNextJob(element.url, element.printerName, true);
-    // (async () => {
-    //   await sleep(10000);
-    // })();
   });
+  
   failedJobs = [];
 }
 
@@ -172,9 +163,7 @@ function getAndPrintNextJob( url, printerName, isFailedJob = false )
 {
   if( printerName == undefined || printerName.length == 0 ) return;
   if( url == undefined || url.length == 0 ) return;
-  console.log('PrinterName : ');
-  console.log(printerName);
-  console.log('');
+
   axios.get(`${url}/system/prints/${printerName}`)
   .then(function (response) {
     if( response.data != '-' )
