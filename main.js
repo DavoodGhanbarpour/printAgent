@@ -1,5 +1,4 @@
 const { app, BrowserWindow, ipcMain, screen } = require('electron');
-const { dialog }  = require('electron');
 const path        = require('path')
 const Store       = require('electron-store');
 const AutoLaunch  = require('auto-launch');
@@ -145,16 +144,18 @@ function print(url, printerName){
   if( printerName )
   {
     hiddenWin = new BrowserWindow({ width: 0, height: 0, show: false });
-    hiddenWin.loadURL(url);
-    hiddenWin.webContents.on('did-finish-load', function() {
-    hiddenWin.webContents.print({
-        silent: true,
-        deviceName: printerName,
-        printBackground: configs.printBackground == 'on' ? true : false,
-      },() => {
-        hiddenWin = null;
+    hiddenWin.once('ready-to-show',() => {
+      hiddenWin.loadURL(url);
+      hiddenWin.webContents.on('did-finish-load', function() {
+      hiddenWin.webContents.print({
+          silent: true,
+          deviceName: printerName,
+          printBackground: configs.printBackground == 'on' ? true : false,
+        },() => {
+          hiddenWin = null;
+        });
       });
-    });
+    })
   }
 }
 
