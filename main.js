@@ -34,7 +34,7 @@ app.whenReady().then(() => {
   });
 
   win.on('close', function (e) {
-      let response = dialog.showMessageBoxSync(this, {
+      let response = app.showMessageBoxSync(this, {
           type: 'question',
           buttons: ['Yes', 'No'],
           title: 'Confirm',
