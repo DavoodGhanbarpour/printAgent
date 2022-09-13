@@ -11,7 +11,6 @@ app.disableHardwareAcceleration();
 
 app.whenReady().then(() => {
   createAgentWindow();
-  buildHiddenView();
   configs = getConfig();
   ipcMain.on('setConfig', saveConfigs);
   ipcMain.on('getConfig',()=>{
@@ -21,7 +20,7 @@ app.whenReady().then(() => {
 
   setInterval(() => {
     getNextPrintJob();
-  },5000);
+  },8000);
 
   
   app.on('activate', function () { 
@@ -114,7 +113,7 @@ function getNextPrintJob(){
     configs.printerName.split(',').forEach(eachPrinterName => {
       setTimeout(() => {
         getAndPrintNextJob( url, eachPrinterName.toString().trim());
-      }, 5000);
+      }, 8000);
     });
    
   }
@@ -145,19 +144,18 @@ function preview(url){
 function print(url, printerName){
   if( printerName )
   {
+    hiddenWin = new BrowserWindow({ width: 0, height: 0, show: false });
     hiddenWin.loadURL(url);
     hiddenWin.webContents.on('did-finish-load', function() {
     hiddenWin.webContents.print({
         silent: true,
         deviceName: printerName,
         printBackground: configs == 'on' ? true : false,
+      },() => {
+        hiddenWin = null;
       });
     });
-      
   }
 }
 
-function buildHiddenView(){
-  hiddenWin = new BrowserWindow({ width: 302, height: 793, show: false });
-}
 
