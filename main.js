@@ -150,7 +150,7 @@ function print(url, printerName){
     hiddenWin.webContents.print({
         silent: true,
         deviceName: printerName,
-        printBackground: configs == 'on' ? true : false,
+        printBackground: configs.printBackground == 'on' ? true : false,
       },() => {
         hiddenWin = null;
       });
