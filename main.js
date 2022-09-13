@@ -34,15 +34,8 @@ app.whenReady().then(() => {
     win.minimize();
   });
 
-  win.on('close', function (e) {
-      let response = dialog.showMessageBoxSync(this, {
-          type: 'question',
-          buttons: ['Yes', 'No'],
-          title: 'Confirm',
-          message: 'Are you sure you want to quit?'
-      });
-
-      if(response == 1) e.preventDefault();
+  win.on('close', function () {
+    app.quit();
   });
 
 
