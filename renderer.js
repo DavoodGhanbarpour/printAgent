@@ -5,6 +5,7 @@ document.getElementById('submitButton').addEventListener('click', () => {
         'printerName' : document.getElementById('printerName').value,
         'startup' : document.getElementById('startup').checked == true ? "on" : "off",
         'start' : document.getElementById('start').checked == true ? "on" : "off",
+        'printBackground' : document.getElementById('printBackground').checked == true ? "on" : "off",
     }
     window.electronAPI.setConfig(input)
 });
@@ -26,7 +27,10 @@ window.electronAPI.replyGetConfig((_event, configs) => {
         document.getElementById('startup').checked  = true;  
 
     if( configs.start == 'on' )
-        document.getElementById('start').checked    = true;
+        document.getElementById('start').checked    = true; 
+        
+    if( configs.printBackground == 'on' )
+        document.getElementById('printBackground').checked    = true;
 });
 
 window.electronAPI.updatePreviewFrame((_event, printPrview) => {
