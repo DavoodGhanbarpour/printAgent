@@ -1,4 +1,5 @@
 const { app, BrowserWindow, ipcMain, screen } = require('electron');
+const { dialog }  = require('electron');
 const path        = require('path')
 const Store       = require('electron-store');
 const AutoLaunch  = require('auto-launch');
@@ -34,7 +35,7 @@ app.whenReady().then(() => {
   });
 
   win.on('close', function (e) {
-      let response = app.showMessageBoxSync(this, {
+      let response = dialog.showMessageBoxSync(this, {
           type: 'question',
           buttons: ['Yes', 'No'],
           title: 'Confirm',
