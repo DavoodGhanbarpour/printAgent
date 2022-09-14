@@ -127,10 +127,7 @@ function getAndPrintNextJob( url, printerName )
   axios.get(`${url}/system/prints/${printerName}`)
   .then(function (response) {
     if( response.data != '-' )
-    {
-      preview(response.data+'&hide=true')
       print(response.data+'&hide=true', printerName)
-    }
   })
   .catch(function (error) {
   });
@@ -144,18 +141,20 @@ function print(url, printerName){
   if( printerName )
   {
     hiddenWin = new BrowserWindow({ width: 0, height: 0, show: false });
-    hiddenWin.once('ready-to-show',() => {
-      hiddenWin.loadURL(url);
+    hiddenWin.loadURL(url);
+    if (hiddenWin) 
+    {
       hiddenWin.webContents.on('did-finish-load', function() {
       hiddenWin.webContents.print({
           silent: true,
           deviceName: printerName,
           printBackground: configs.printBackground == 'on' ? true : false,
         },() => {
-          hiddenWin = null;
+          hiddenWin.destroy();
+          preview(url+'&hide=true')
         });
       });
-    })
+    }
   }
 }
 
