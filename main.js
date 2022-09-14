@@ -4,7 +4,7 @@ const Store       = require('electron-store');
 const AutoLaunch  = require('auto-launch');
 const axios       = require('axios');
 const store       = new Store();
-var win, hiddenWin, configs;        
+var win, configs;        
 
 app.disableHardwareAcceleration();
 
@@ -140,7 +140,8 @@ function preview(url){
 function print(url, printerName){
   if( printerName )
   {
-    hiddenWin = new BrowserWindow({ width: 0, height: 0, show: false });
+    
+    let hiddenWin = new BrowserWindow({ show: false });
     hiddenWin.loadURL(url);
     if (hiddenWin) 
     {
